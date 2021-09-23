@@ -2,7 +2,7 @@
 
 'use strict';
 import * as encoding from 'text-encoding';
-Object.defineProperty(exports, '__esModule', { value: true });
+Object.defineProperty(exports, '__esModule', {value: true});
 
 const textEncoder = new encoding.TextEncoder();
 const textDecoder = new encoding.TextDecoder();
