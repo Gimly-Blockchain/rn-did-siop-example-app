@@ -17,7 +17,6 @@ import axios from "axios"
 import {OP} from "@sphereon/did-auth-siop/dist/main/OP"
 import {
   AuthenticationResponseOpts,
-  AuthenticationResponseWithJWT,
   PassBy,
   ResponseMode,
   VerificationMode,
@@ -71,34 +70,32 @@ class App extends Component<AppState> {
   }
 
 
-  private getAuthenticationRequestFromRP(qrContent: QRContent) {
+  private async getAuthenticationRequestFromRP(qrContent: QRContent) {
     const getRequestUrl = qrContent.redirectUrl + "?stateId=" + qrContent.state;
     console.log("getRequestUrl", getRequestUrl);
-    axios.get(getRequestUrl)
-        .then(response => {
-          console.log("response.status", response.status);
-          if (response.status == 200) {
-            const uriDecoded = decodeURIComponent(response.data as string);
-            const requestURI = this.objectFromURI(uriDecoded)
-            this.verifyAuthenticationRequestURI(requestURI)
-          } else {
-            this.setState({message: "Error: " + response.statusText})
-          }
-        })
-        .catch(error => {
-          let message = "Error: " + error;
-          if (error.response) {
-            message += " - " + error.response.data
-          }
-          this.setState({message: message})
-        })
-        .finally(() => {
-              this.timeout(5000).then(() => this.setState({showQRScanner: true}))
-            }
-        )
+    try {
+      const response = await axios.get(getRequestUrl)
+      console.log("response.status", response.status);
+      if (response.status == 200) {
+        const uriDecoded = decodeURIComponent(response.data as string);
+        const requestURI = this.objectFromURI(uriDecoded)
+        this.verifyAuthenticationRequestURI(requestURI)
+      } else {
+        this.setState({message: "Error: " + response.statusText})
+      }
+    } catch (error) {
+      let message = "Error: " + error;
+      if (error.response) {
+        message += " - " + error.response.data
+      }
+      console.error(message)
+      this.setState({message: message})
+    } finally {
+      this.timeout(5000).then(() => this.setState({showQRScanner: true}))
+    }
   }
 
-  private verifyAuthenticationRequestURI(requestURI: any) {
+  private async verifyAuthenticationRequestURI(requestURI: any) {
     try {
       const responseOpts: AuthenticationResponseOpts = {
         signatureType: {
@@ -127,42 +124,29 @@ class App extends Component<AppState> {
 
       const op = OP.fromOpts(responseOpts, verifyOpts);
       const jwt = requestURI.request;
-      op.verifyAuthenticationRequest(jwt, {audience: DID})
-          .then((verifiedRequest) => {
-            console.log("signer did:", verifiedRequest.signer.id)
-            this.sendAuthResponse(op, jwt, requestURI);
-          })
-          .catch(reason => {
-            console.error("verifyRequest failed", reason)
-            this.setState({message: "Error: " + reason})
-          })
+      const verifiedRequest = await op.verifyAuthenticationRequest(jwt, {audience: DID})
+      console.log("signer did:", verifiedRequest.signer.id)
+      this.sendAuthResponse(op, jwt, requestURI);
     } catch (e) {
       console.error("verifiedRequest failed", e.message)
       this.setState({message: "Error: " + e.message})
     }
   }
 
-  private sendAuthResponse(op: OP, requestJwt: string, requestURI: any) {
-    op.createAuthenticationResponse(requestJwt)
-        .then((authResponse: AuthenticationResponseWithJWT) => {
-          axios.post(requestURI.redirect_uri, authResponse)
-              .then(response => {
-                if (response.status == 200) {
-                  this.setState({message: "Login successful!"})
-                } else {
-                  console.error(`Error ${response.status}: ${response.statusText}`)
-                  this.setState({message: `Error posting to ${requestURI.redirect_uri}: ${response.statusText}`})
-                }
-              })
-              .catch(reason => {
-                console.error("verifyRequest failed", reason)
-                this.setState({message: "Error: " + reason})
-              })
-        })
-        .catch(reason => {
-          console.error("verifyRequest failed", reason)
-          this.setState({message: "Error: " + reason})
-        })
+  private async sendAuthResponse(op: OP, requestJwt: string, requestURI: any) {
+    try {
+      const authResponse = await op.createAuthenticationResponse(requestJwt)
+      const soipSessionResponse = await axios.post(requestURI.redirect_uri, authResponse)
+      if (soipSessionResponse.status == 200) {
+        this.setState({message: "Login successful!"})
+      } else {
+        console.error(`Error ${soipSessionResponse.status}: ${soipSessionResponse.statusText}`)
+        this.setState({message: `Error posting to ${requestURI.redirect_uri}: ${soipSessionResponse.statusText}`})
+      }
+    } catch (error) {
+      console.error("verifyRequest failed", error.message)
+      this.setState({message: "Error: " + error.message})
+    }
   }
 
   private timeout(ms: number) {
@@ -174,24 +158,25 @@ class App extends Component<AppState> {
   }
 }
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+const
+    styles = StyleSheet.create({
+      sectionContainer: {
+        marginTop: 32,
+        paddingHorizontal: 24,
+      },
+      sectionTitle: {
+        fontSize: 24,
+        fontWeight: '600',
+      },
+      sectionDescription: {
+        marginTop: 8,
+        fontSize: 18,
+        fontWeight: '400',
+      },
+      highlight: {
+        fontWeight: '700',
+      },
+    });
 
 
 export default App;
