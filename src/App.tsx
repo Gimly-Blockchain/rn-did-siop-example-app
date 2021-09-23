@@ -25,9 +25,8 @@ import {
 } from "@sphereon/did-auth-siop/dist/main/types/SIOP.types"
 
 const EXAMPLE_REFERENCE_URL = "https://rp.acme.com/siop/jwts" // FIXME to env
-const HEX_KEY = "f857544a9d1097e242ff0b287a7e6e90f19cf973efe2317f2a4678739664420f";
-const DID = "did:ethr:0x0106a2e985b1E1De9B5ddb4aF6dC9e928F4e99D0";
-const KID = "did:ethr:0x0106a2e985b1E1De9B5ddb4aF6dC9e928F4e99D0#controller";
+const HEX_KEY = "c848751f600a9b8b91e3db840d75be2304b0ec4b9b15fe77d87d3eed9a007d1a";
+const DID = "did:ethr:0x8D0E24509b79AfaB3A74Be1700ebF9769796B489";
 
 
 export type AppState = {
@@ -104,8 +103,7 @@ class App extends Component<AppState> {
       const responseOpts: AuthenticationResponseOpts = {
         signatureType: {
           hexPrivateKey: HEX_KEY,
-          did: DID,
-          kid: KID,
+          did: DID
         },
         registration: {
           registrationBy: {
@@ -150,9 +148,9 @@ class App extends Component<AppState> {
           axios.post(requestURI.redirect_uri, authResponse)
               .then(response => {
                 if (response.status == 200) {
-                  const accessToken = response.data
-                  this.setState({message: "Got an access token: " + accessToken})
+                  this.setState({message: "Login successful!"})
                 } else {
+                  console.error(`Error ${response.status}: ${response.statusText}`)
                   this.setState({message: `Error posting to ${requestURI.redirect_uri}: ${response.statusText}`})
                 }
               })
