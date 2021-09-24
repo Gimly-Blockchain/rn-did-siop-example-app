@@ -1,17 +1,18 @@
 {
-  "name": "opclienttester",
+  "name": "rn-did-siop-auth-app",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "hackemall": "copyfiles --flat ./src/hacks/json.js ./node_modules/multiformats/cjs/src/codecs/ && copyfiles --flat ./src/hacks/Keys.js ./node_modules/@sphereon/did-auth-siop/dist/main/functions/ && rn-nodeify --hack --install",
+    "nodeify": "rn-nodeify --hack --install",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "fix:lint": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
-    "@sphereon/did-auth-siop": "file:./lib/sphereon-did-auth-siop-v0.0.11.tgz",
+    "@sphereon/gimlyid-qr-code-scanner": "0.1.1",
+    "@sphereon/rn-did-siop-auth-lib": "^0.0.7",
     "@tradle/react-native-http": "^2.0.0",
     "assert": "^1.1.1",
     "axios": "^0.21.4",
@@ -22,7 +23,6 @@
     "dns.js": "^1.0.1",
     "domain-browser": "^1.1.1",
     "events": "^1.0.0",
-    "gimlyid-qr-code-scanner": ".\\lib\\gimlyid-qr-code-scanner-v0.1.6.tgz",
     "https-browserify": "0.0.1",
     "path-browserify": "0.0.0",
     "punycode": "^1.2.4",
@@ -56,10 +56,11 @@
     "@types/react-native": "^0.65.0",
     "@types/react-test-renderer": "^17.0.1",
     "babel-jest": "^26.6.3",
+    "babel-plugin-module-resolver": "^4.1.0",
     "copyfiles": "^2.4.1",
     "eslint": "^7.14.0",
+    "eslint-plugin-import": "^2.24.2",
     "jest": "^26.6.3",
-    "metro-react-native-babel-preset": "^0.66.0",
     "react-native-codegen": "^0.0.7",
     "react-test-renderer": "17.0.2",
     "rn-nodeify": "^10.3.0",

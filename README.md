@@ -2,6 +2,6 @@
 
 yarn install
 
-yarn hackemall
+yarn nodeify
 
 yarn android
