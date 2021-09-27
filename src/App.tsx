@@ -53,7 +53,9 @@ class App extends Component<AppState> {
     this.setState({showQRScanner: false})
     Vibration.vibrate(500)
     try {
-      await this.opAuthenticator.executeLoginFlowFromQR(qrContent.redirectUrl as string, qrContent.state)
+      const requestURL = await this.opAuthenticator.getRequestUrl(qrContent.redirectUrl as string, qrContent.state)
+      const verifiedRequest = await this.opAuthenticator.verifyAuthenticationRequestURI(requestURL)
+        this.opAuthenticator.sendAuthResponse(verifiedRequest.jwt, requestURL.)
       this.setState({message: "Login successful!"})
     } catch (e) {
       console.error("verifyRequest failed", e.message)
