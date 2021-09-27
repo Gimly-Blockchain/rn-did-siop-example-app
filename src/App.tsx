@@ -8,7 +8,7 @@
  * @format
  */
 import GimlyIDQRCodeScanner, {QRContent} from "@sphereon/gimlyid-qr-code-scanner"
-import OPHelper from "@sphereon/rn-did-siop-auth-lib/dist/src"
+import OPAuthenticator from "@sphereon/rn-did-siop-auth-lib/dist"
 import React, {Component} from "react"
 import {StyleSheet, Text, Vibration,} from "react-native"
 import "react-native-get-random-values"
@@ -23,12 +23,12 @@ class App extends Component<AppState> {
   state: AppState = {
     message: "Processing"
   }
-  private opHelper: OPHelper
+  private opAuthenticator: OPAuthenticator
 
 
   constructor(props: AppState, context: any) {
     super(props, context)
-    this.opHelper = new OPHelper()
+    this.opAuthenticator = new OPAuthenticator()
   }
 
   componentDidMount() {
@@ -53,7 +53,7 @@ class App extends Component<AppState> {
     this.setState({showQRScanner: false})
     Vibration.vibrate(500)
     try {
-      await this.opHelper.executeLoginFlowFromQR(qrContent.redirectUrl as string, qrContent.state)
+      await this.opAuthenticator.executeLoginFlowFromQR(qrContent.redirectUrl as string, qrContent.state)
       this.setState({message: "Login successful!"})
     } catch (e) {
       console.error("verifyRequest failed", e.message)
