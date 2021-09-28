@@ -8,27 +8,36 @@
  * @format
  */
 import GimlyIDQRCodeScanner, {QRContent} from "@sphereon/gimlyid-qr-code-scanner"
-import OPAuthenticator from "@sphereon/rn-did-siop-auth-lib/dist"
+import OPAuthenticator, {AuthenticationRequestURI} from "@sphereon/rn-did-siop-auth-lib/dist"
 import React, {Component} from "react"
-import {StyleSheet, Text, Vibration,} from "react-native"
+import {StyleSheet, Text, Vibration, View,} from "react-native"
 import "react-native-get-random-values"
+import BiometricPopup from "./BiometricPopup";
+
 
 export type AppState = {
   showQRScanner?: boolean,
+  showBiometricPopup?: boolean,
   message?: string
+  biometricPopupDescription?: string
 }
+
+// TODO move hardcoding
+const OP_PRIVATE_KEY = "c848751f600a9b8b91e3db840d75be2304b0ec4b9b15fe77d87d3eed9a007d1a";
+const OP_DID = "did:ethr:0x8D0E24509b79AfaB3A74Be1700ebF9769796B489";
 
 class App extends Component<AppState> {
 
   state: AppState = {
-    message: "Processing"
+    message: "Scan the QR code"
   }
   private opAuthenticator: OPAuthenticator
+  private authRequestURI?: AuthenticationRequestURI
 
 
   constructor(props: AppState, context: any) {
     super(props, context)
-    this.opAuthenticator = new OPAuthenticator()
+    this.opAuthenticator = new OPAuthenticator(OP_DID, OP_PRIVATE_KEY)
   }
 
   componentDidMount() {
@@ -37,26 +46,59 @@ class App extends Component<AppState> {
 
   render() {
     const showQRScanner = this.state.showQRScanner as boolean
+    const showBiometricPopup = this.state.showBiometricPopup as boolean
     if (showQRScanner) {
       return (
           <GimlyIDQRCodeScanner style={{flex: 1, width: '100%'}} onRead={(qrContent: QRContent) => {
-            this.processBarcode(qrContent);
+            this.processBarcode(qrContent)
           }
           }/>
       )
     } else {
-      return (<Text>{this.state.message}</Text>)
+      return (
+          <View
+              style={styles.fingerprint}
+          >
+            {showBiometricPopup && (
+                <BiometricPopup onAuthenticate={() => this.sendAuthResponse()} description={this.state.biometricPopupDescription as string}/>
+            )}
+            <Text>{this.state.message}</Text>
+          </View>
+      )
     }
   }
 
   private async processBarcode(qrContent: QRContent) {
-    this.setState({showQRScanner: false})
+    this.setState({showQRScanner: false, message: "Barcode read, waiting for biometric approval."})
     Vibration.vibrate(500)
     try {
-      await this.opAuthenticator.executeLoginFlowFromQR(qrContent.redirectUrl as string, qrContent.state)
-      this.setState({message: "Login successful!"})
+      this.authRequestURI = await this.opAuthenticator.getRequestUrl(qrContent.redirectUrl as string, qrContent.state)
+      const rpPresentation = await this.opAuthenticator.verifyAuthenticationRequestURI(this.authRequestURI)
+      this.setState({
+        showBiometricPopup: true,
+        biometricPopupDescription: `Received authentication request from ${rpPresentation.did}`
+      })
     } catch (e) {
       console.error("verifyRequest failed", e.message)
+      this.setState({message: "Error: " + e.message})
+      this.timeout(5000).then(() => this.setState({showQRScanner: true}))
+    }
+  }
+
+
+  private sendAuthResponse() {
+    try {
+
+      this.setState({
+        showBiometricPopup: false,
+        message: `Biometric approval received, sending response.`
+      })
+
+      this.opAuthenticator.sendAuthResponse(this.authRequestURI as AuthenticationRequestURI).then(() => {
+        this.setState({message: "Login successful"})
+      })
+    } catch (e) {
+      console.error("sendAuthResponse failed", e.message)
       this.setState({message: "Error: " + e.message})
     } finally {
       this.timeout(5000).then(() => this.setState({showQRScanner: true}))
@@ -68,25 +110,28 @@ class App extends Component<AppState> {
   }
 }
 
-const
-    styles = StyleSheet.create({
-      sectionContainer: {
-        marginTop: 32,
-        paddingHorizontal: 24,
-      },
-      sectionTitle: {
-        fontSize: 24,
-        fontWeight: '600',
-      },
-      sectionDescription: {
-        marginTop: 8,
-        fontSize: 18,
-        fontWeight: '400',
-      },
-      highlight: {
-        fontWeight: '700',
-      },
-    })
+const styles = StyleSheet.create({
+  sectionContainer: {
+    marginTop: 32,
+    paddingHorizontal: 24,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: '600',
+  },
+  sectionDescription: {
+    marginTop: 8,
+    fontSize: 18,
+    fontWeight: '400',
+  },
+  highlight: {
+    fontWeight: '700',
+  },
+  fingerprint: {
+    padding: 20,
+    marginVertical: 30,
+  },
+})
 
 
 export default App

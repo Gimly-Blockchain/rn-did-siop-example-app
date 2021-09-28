@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@sphereon/gimlyid-qr-code-scanner": "0.1.1",
-    "@sphereon/rn-did-siop-auth-lib": "^0.0.9",
+    "@sphereon/rn-did-auth-op-authenticator": "^0.0.2",
+    "@sphereon/rn-did-siop-auth-lib": "file:C:\\-DEV\\ONTO\\rn-did-siop-auth-lib",
     "@tradle/react-native-http": "^2.0.0",
     "assert": "^1.1.1",
     "axios": "^0.21.4",
@@ -32,6 +33,7 @@
     "react-native": "0.65.1",
     "react-native-camera": "^4.2.0",
     "react-native-crypto": "^2.2.0",
+    "react-native-fingerprint-scanner": "^6.0.0",
     "react-native-get-random-values": "^1.7.0",
     "react-native-level-fs": "^3.0.0",
     "react-native-os": "^1.0.1",
