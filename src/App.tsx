@@ -62,7 +62,7 @@ class App extends Component<AppState> {
             {showBiometricPopup && (
                 <BiometricPopup description={this.state.biometricPopupDescription as string}
                                 onAuthenticate={() => this.sendAuthResponse()}
-                                onCancel={() => this.biometricPopupCancelled()}/>
+                                onCancel={(reason: any) => this.biometricPopupCancelled(reason)}/>
             )}
             <Text>{this.state.message}</Text>
           </View>
@@ -111,10 +111,10 @@ class App extends Component<AppState> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  private biometricPopupCancelled() {
+  private biometricPopupCancelled(reason: any) {
     this.setState({
       showBiometricPopup: false,
-      message: `Biometric approval cancelled...`
+      message: reason.message
     })
     this.timeout(5000).then(() => this.setState({showQRScanner: true}))
   }

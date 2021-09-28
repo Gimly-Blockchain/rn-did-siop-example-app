@@ -6,7 +6,7 @@ import FingerprintScanner from 'react-native-fingerprint-scanner';
 export type BiometricPopupProps = {
   description?: string
   onAuthenticate: () => void
-  onCancel: (reason: string) => void
+  onCancel: (reason: any) => void
 }
 
 class BiometricPopup extends Component<BiometricPopupProps> {
