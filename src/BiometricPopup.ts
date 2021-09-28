@@ -1,11 +1,12 @@
 import {Component} from 'react';
 
-import FingerprintScanner, {Biometrics} from 'react-native-fingerprint-scanner';
+import FingerprintScanner from 'react-native-fingerprint-scanner';
 
 
 export type BiometricPopupProps = {
   description?: string
   onAuthenticate: () => void
+  onCancel: (reason: string) => void
 }
 
 class BiometricPopup extends Component<BiometricPopupProps> {
@@ -31,7 +32,9 @@ class BiometricPopup extends Component<BiometricPopupProps> {
         .authenticate({description: this.props.description || 'Log in with Biometrics'})
         .then(() => {
           this.props.onAuthenticate()
-        });
+        }).catch(reason => {
+      this.props.onCancel(reason)
+    });
   }
 
   render = () => {

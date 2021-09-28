@@ -8,7 +8,7 @@
  * @format
  */
 import GimlyIDQRCodeScanner, {QRContent} from "@sphereon/gimlyid-qr-code-scanner"
-import OPAuthenticator, {AuthenticationRequestURI} from "@sphereon/rn-did-siop-auth-lib/dist"
+import OPAuthenticator, {ParsedAuthenticationRequestURI} from "@sphereon/rn-did-auth-op-authenticator";
 import React, {Component} from "react"
 import {StyleSheet, Text, Vibration, View,} from "react-native"
 import "react-native-get-random-values"
@@ -32,7 +32,7 @@ class App extends Component<AppState> {
     message: "Scan the QR code"
   }
   private opAuthenticator: OPAuthenticator
-  private authRequestURI?: AuthenticationRequestURI
+  private authRequestURI?: ParsedAuthenticationRequestURI
 
 
   constructor(props: AppState, context: any) {
@@ -60,7 +60,9 @@ class App extends Component<AppState> {
               style={styles.fingerprint}
           >
             {showBiometricPopup && (
-                <BiometricPopup onAuthenticate={() => this.sendAuthResponse()} description={this.state.biometricPopupDescription as string}/>
+                <BiometricPopup description={this.state.biometricPopupDescription as string}
+                                onAuthenticate={() => this.sendAuthResponse()}
+                                onCancel={() => this.biometricPopupCancelled()}/>
             )}
             <Text>{this.state.message}</Text>
           </View>
@@ -94,7 +96,7 @@ class App extends Component<AppState> {
         message: `Biometric approval received, sending response.`
       })
 
-      this.opAuthenticator.sendAuthResponse(this.authRequestURI as AuthenticationRequestURI).then(() => {
+      this.opAuthenticator.sendAuthResponse(this.authRequestURI as ParsedAuthenticationRequestURI).then(() => {
         this.setState({message: "Login successful"})
       })
     } catch (e) {
@@ -107,6 +109,14 @@ class App extends Component<AppState> {
 
   private timeout(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private biometricPopupCancelled() {
+    this.setState({
+      showBiometricPopup: false,
+      message: `Biometric approval cancelled...`
+    })
+    this.timeout(5000).then(() => this.setState({showQRScanner: true}))
   }
 }
 

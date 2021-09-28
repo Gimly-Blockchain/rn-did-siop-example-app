@@ -12,9 +12,7 @@
     "fix:lint": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
-    "@sphereon/gimlyid-qr-code-scanner": "0.1.1",
-    "@sphereon/rn-did-auth-op-authenticator": "^0.0.2",
-    "@sphereon/rn-did-siop-auth-lib": "file:C:\\-DEV\\ONTO\\rn-did-siop-auth-lib",
+    "@sphereon/gimlyid-qr-code-scanner": "0.1.0",
     "@tradle/react-native-http": "^2.0.0",
     "assert": "^1.1.1",
     "axios": "^0.21.4",
