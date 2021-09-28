@@ -8,7 +8,7 @@
  * @format
  */
 import GimlyIDQRCodeScanner, {QRContent} from "@sphereon/gimlyid-qr-code-scanner"
-import OPAuthenticator, {ParsedAuthenticationRequestURI} from "@sphereon/rn-did-auth-op-authenticator";
+import OPAuthenticator, {ParsedAuthenticationRequestURI, VerifiedAuthenticationRequestWithJWT} from "@sphereon/rn-did-auth-op-authenticator";
 import React, {Component} from "react"
 import {StyleSheet, Text, Vibration, View,} from "react-native"
 import "react-native-get-random-values"
@@ -33,6 +33,7 @@ class App extends Component<AppState> {
   }
   private opAuthenticator: OPAuthenticator
   private authRequestURI?: ParsedAuthenticationRequestURI
+  private verifyAuthenticationRequest?: VerifiedAuthenticationRequestWithJWT;
 
 
   constructor(props: AppState, context: any) {
@@ -75,7 +76,8 @@ class App extends Component<AppState> {
     Vibration.vibrate(500)
     try {
       this.authRequestURI = await this.opAuthenticator.getRequestUrl(qrContent.redirectUrl as string, qrContent.state)
-      const rpPresentation = await this.opAuthenticator.verifyAuthenticationRequestURI(this.authRequestURI)
+      this.verifyAuthenticationRequest = await this.opAuthenticator.verifyAuthenticationRequestURI(this.authRequestURI)
+      const rpPresentation = this.opAuthenticator.rpPresentationFromDidResolutionResult(this.verifyAuthenticationRequest)
       this.setState({
         showBiometricPopup: true,
         biometricPopupDescription: `Received authentication request from ${rpPresentation.did}`
@@ -96,7 +98,7 @@ class App extends Component<AppState> {
         message: `Biometric approval received, sending response.`
       })
 
-      this.opAuthenticator.sendAuthResponse(this.authRequestURI as ParsedAuthenticationRequestURI).then(() => {
+      this.opAuthenticator.sendAuthResponse(this.verifyAuthenticationRequest as VerifiedAuthenticationRequestWithJWT).then(() => {
         this.setState({message: "Login successful"})
       })
     } catch (e) {
