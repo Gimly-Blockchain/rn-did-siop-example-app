@@ -7,13 +7,13 @@
  *
  * @format
  */
+import {OP_DID, OP_PRIVATE_KEY} from "@env"
 import GimlyIDQRCodeScanner, {QRContent} from "@sphereon/gimlyid-qr-code-scanner"
 import OPAuthenticator, {ParsedAuthenticationRequestURI, VerifiedAuthenticationRequestWithJWT} from "@spostma/rn-did-auth-op-authenticator";
 import React, {Component} from "react"
 import {StyleSheet, Text, Vibration, View,} from "react-native"
 import "react-native-get-random-values"
 import BiometricPopup from "./BiometricPopup";
-
 
 export type AppState = {
   showQRScanner?: boolean,
@@ -22,9 +22,6 @@ export type AppState = {
   biometricPopupDescription?: string
 }
 
-// TODO move hardcoding
-const OP_PRIVATE_KEY = "c848751f600a9b8b91e3db840d75be2304b0ec4b9b15fe77d87d3eed9a007d1a";
-const OP_DID = "did:ethr:0x8D0E24509b79AfaB3A74Be1700ebF9769796B489";
 
 class App extends Component<AppState> {
 

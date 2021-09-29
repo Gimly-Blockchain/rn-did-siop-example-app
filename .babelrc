@@ -24,6 +24,13 @@
           "jose/jwt/verify": "jose/dist/node/cjs/jwt/verify.js"
         }
       }
+    ],
+    [
+      "module:react-native-dotenv",
+      {
+        "moduleName": "@env",
+        "path": ".env"
+      }
     ]
   ]
 }
