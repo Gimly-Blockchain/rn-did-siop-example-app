@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@sphereon/gimlyid-qr-code-scanner": "0.1.0",
-    "@spostma/rn-did-auth-op-authenticator": "^0.0.2",
+    "@spostma/rn-did-auth-op-authenticator": "^0.0.3",
     "@tradle/react-native-http": "^2.0.0",
     "assert": "^1.1.1",
     "axios": "^0.21.4",
