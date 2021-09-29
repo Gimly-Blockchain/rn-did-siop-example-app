@@ -23,4 +23,4 @@ This app was created for use with the [onto-web-demo site](https://github.com/Sp
 Once the demo app has loaded, you will land in camera mode. Now you can scan a QR code from the screen,
 after which you are prompted for approval by biometrics like the fingerprint scanner or face recognition.
 
-When approved the website will grant you access to the protected sections.
+When approved the demo website will grant you access to the protected sections.

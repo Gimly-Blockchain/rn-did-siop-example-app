@@ -8,7 +8,7 @@
  * @format
  */
 import GimlyIDQRCodeScanner, {QRContent} from "@sphereon/gimlyid-qr-code-scanner"
-import OPAuthenticator, {ParsedAuthenticationRequestURI, VerifiedAuthenticationRequestWithJWT} from "@sphereon/rn-did-auth-op-authenticator";
+import OPAuthenticator, {ParsedAuthenticationRequestURI, VerifiedAuthenticationRequestWithJWT} from "@spostma/rn-did-auth-op-authenticator";
 import React, {Component} from "react"
 import {StyleSheet, Text, Vibration, View,} from "react-native"
 import "react-native-get-random-values"
