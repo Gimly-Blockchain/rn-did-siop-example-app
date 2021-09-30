@@ -7,7 +7,7 @@
  *
  * @format
  */
-import {OP_DID, OP_PRIVATE_KEY} from "@env"
+import {OP_DID, OP_KID, OP_PRIVATE_KEY} from "@env"
 import GimlyIDQRCodeScanner, {QRContent} from "@sphereon/gimlyid-qr-code-scanner"
 import OPAuthenticator, {ParsedAuthenticationRequestURI, VerifiedAuthenticationRequestWithJWT} from "@spostma/rn-did-auth-op-authenticator";
 import React, {Component} from "react"
@@ -35,7 +35,7 @@ class App extends Component<AppState> {
 
   constructor(props: AppState, context: any) {
     super(props, context)
-    this.opAuthenticator = new OPAuthenticator(OP_DID, OP_PRIVATE_KEY)
+    this.opAuthenticator = new OPAuthenticator(OP_DID, OP_KID, OP_PRIVATE_KEY)
   }
 
   componentDidMount() {
@@ -72,7 +72,10 @@ class App extends Component<AppState> {
     this.setState({showQRScanner: false, message: "Barcode read, waiting for biometric approval."})
     Vibration.vibrate(500)
     try {
-      this.authRequestURI = await this.opAuthenticator.getRequestUrl(qrContent.redirectUrl as string, qrContent.state)
+      const redirectUrl = qrContent.redirectUrl as string;
+      console.log("Getting request URL from", redirectUrl)
+      this.authRequestURI = await this.opAuthenticator.getRequestUrl(redirectUrl, qrContent.state)
+      console.log("Get redirect_uri", this.authRequestURI.requestPayload.redirect_uri)
       this.verifyAuthenticationRequest = await this.opAuthenticator.verifyAuthenticationRequestURI(this.authRequestURI)
       const rpPresentation = this.opAuthenticator.rpPresentationFromDidResolutionResult(this.verifyAuthenticationRequest)
       this.setState({
@@ -80,7 +83,7 @@ class App extends Component<AppState> {
         biometricPopupDescription: `Received authentication request from ${rpPresentation.did}`
       })
     } catch (e) {
-      console.error("verifyRequest failed", e.message)
+      console.error("verifyRequest failed", e)
       this.setState({message: "Error: " + e.message})
       this.timeout(5000).then(() => this.setState({showQRScanner: true}))
     }
