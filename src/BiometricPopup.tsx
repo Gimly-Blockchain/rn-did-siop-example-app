@@ -26,7 +26,7 @@ class BiometricPopup extends Component<BiometricPopupProps, BiometricPopupState>
     if (this.requiresLegacyAuthentication()) {
       this.authLegacy();
     } else {
-      this.authX();
+      this.auth23Plus();
     }
   }
 
@@ -34,7 +34,7 @@ class BiometricPopup extends Component<BiometricPopupProps, BiometricPopupState>
     FingerprintScanner.release();
   }
 
-  authX() {
+  auth23Plus() {
     FingerprintScanner
         .authenticate({description: this.props.description || 'Log in with Biometrics'})
         .then(() => {

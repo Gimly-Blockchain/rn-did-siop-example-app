@@ -10,6 +10,7 @@
 import {OP_DID, OP_KID, OP_PRIVATE_KEY} from "@env"
 import GimlyIDQRCodeScanner, {QRContent} from "@sphereon/gimlyid-qr-code-scanner"
 import OPAuthenticator, {ParsedAuthenticationRequestURI, VerifiedAuthenticationRequestWithJWT} from "@spostma/rn-did-auth-op-authenticator";
+import {QRCodeValues} from "@spostma/rn-did-auth-op-authenticator/dist/types/types";
 import React, {Component} from "react"
 import {StyleSheet, Text, Vibration, View,} from "react-native"
 import "react-native-get-random-values"
@@ -30,12 +31,16 @@ class App extends Component<AppState> {
   }
   private opAuthenticator: OPAuthenticator
   private authRequestURI?: ParsedAuthenticationRequestURI
-  private verifyAuthenticationRequest?: VerifiedAuthenticationRequestWithJWT;
+  private verifiedAuthenticationRequest?: VerifiedAuthenticationRequestWithJWT
 
 
   constructor(props: AppState, context: any) {
     super(props, context)
-    this.opAuthenticator = new OPAuthenticator(OP_DID, OP_KID, OP_PRIVATE_KEY)
+    this.opAuthenticator = OPAuthenticator.newInstance({
+      opPrivateKey: OP_PRIVATE_KEY,
+      opDID: OP_DID,
+      opKID: OP_KID
+    })
   }
 
   componentDidMount() {
@@ -74,13 +79,13 @@ class App extends Component<AppState> {
     try {
       const redirectUrl = qrContent.redirectUrl as string;
       console.log("Getting request URL from", redirectUrl)
-      this.authRequestURI = await this.opAuthenticator.getRequestUrl(redirectUrl, qrContent.state)
+      this.authRequestURI = await this.opAuthenticator.getAuthenticationRequestFromRP(qrContent as QRCodeValues)
       console.log("Get redirect_uri", this.authRequestURI.requestPayload.redirect_uri)
-      this.verifyAuthenticationRequest = await this.opAuthenticator.verifyAuthenticationRequestURI(this.authRequestURI)
-      const rpPresentation = this.opAuthenticator.rpPresentationFromDidResolutionResult(this.verifyAuthenticationRequest)
+      this.verifiedAuthenticationRequest = await this.opAuthenticator.verifyAuthenticationRequestURI(this.authRequestURI)
+      const rpDid = this.opAuthenticator.rpDidFromAuthenticationRequest(this.verifiedAuthenticationRequest)
       this.setState({
         showBiometricPopup: true,
-        biometricPopupDescription: `Received authentication request from ${rpPresentation.did}`
+        biometricPopupDescription: `Received authentication request from ${rpDid.id} ${rpDid.alsoKnownAs}`
       })
     } catch (e) {
       console.error("verifyRequest failed", e)
@@ -90,7 +95,7 @@ class App extends Component<AppState> {
   }
 
 
-  private sendAuthResponse() {
+  private async sendAuthResponse() {
     try {
 
       this.setState({
@@ -98,9 +103,8 @@ class App extends Component<AppState> {
         message: `Biometric approval received, sending response.`
       })
 
-      this.opAuthenticator.sendAuthResponse(this.verifyAuthenticationRequest as VerifiedAuthenticationRequestWithJWT).then(() => {
-        this.setState({message: "Login successful"})
-      })
+      await this.opAuthenticator.sendAuthResponse(this.verifiedAuthenticationRequest as VerifiedAuthenticationRequestWithJWT)
+      this.setState({message: "Login successful"})
     } catch (e) {
       console.error("sendAuthResponse failed", e.message)
       this.setState({message: "Error: " + e.message})

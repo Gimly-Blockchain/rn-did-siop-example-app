@@ -1,7 +1,4 @@
 {
-  "presets": [
-    "module:metro-react-native-babel-preset"
-  ],
   "plugins": [
     [
       "module-resolver",
@@ -18,11 +15,7 @@
           ".jsx",
           ".js",
           ".json"
-        ],
-        "alias": {
-          "jose/jwk/parse": "jose/dist/node/cjs/jwk/parse.js",
-          "jose/jwt/verify": "jose/dist/node/cjs/jwt/verify.js"
-        }
+        ]
       }
     ],
     [

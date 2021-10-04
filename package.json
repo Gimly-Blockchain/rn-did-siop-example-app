@@ -12,8 +12,8 @@
     "fix:lint": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
-    "@sphereon/gimlyid-qr-code-scanner": "0.1.0",
-    "@spostma/rn-did-auth-op-authenticator": "^0.0.5",
+    "@sphereon/gimlyid-qr-code-scanner": "^0.1.0",
+    "@spostma/rn-did-auth-op-authenticator": "0.0.18",
     "@tradle/react-native-http": "^2.0.0",
     "assert": "^1.1.1",
     "axios": "^0.21.4",
@@ -30,7 +30,7 @@
     "querystring-es3": "^0.2.1",
     "react": "17.0.2",
     "react-native": "0.65.1",
-    "react-native-camera": "^4.2.0",
+    "react-native-camera": "^4.2.1",
     "react-native-crypto": "^2.2.0",
     "react-native-dotenv": "^3.2.0",
     "react-native-fingerprint-scanner": "^6.0.0",
@@ -52,22 +52,14 @@
     "vm-browserify": "0.0.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9",
-    "@babel/runtime": "^7.12.5",
-    "@react-native-community/eslint-config": "^2.0.0",
-    "@types/jest": "^26.0.23",
     "@types/react-native": "^0.65.0",
     "@types/react-test-renderer": "^17.0.1",
-    "babel-jest": "^26.6.3",
     "babel-plugin-module-resolver": "^4.1.0",
-    "copyfiles": "^2.4.1",
     "eslint": "^7.14.0",
     "eslint-plugin-import": "^2.24.2",
     "jest": "^26.6.3",
-    "react-native-codegen": "^0.0.7",
     "react-test-renderer": "17.0.2",
-    "rn-nodeify": "^10.3.0",
-    "typescript": "^3.8.3"
+    "rn-nodeify": "^10.3.0"
   },
   "resolutions": {
     "@types/react": "^17"
