@@ -77,7 +77,7 @@ class App extends Component<AppState> {
     this.setState({showQRScanner: false, message: "Barcode read, waiting for biometric approval."})
     Vibration.vibrate(500)
     try {
-      const redirectUrl = qrContent.redirectUrl as string;
+      const redirectUrl = qrContent.redirectUrl as string
       console.log("Getting request URL from", redirectUrl)
       this.authRequestURI = await this.opAuthenticator.getAuthenticationRequestFromRP(qrContent as QRCodeValues)
       console.log("Get redirect_uri", this.authRequestURI.requestPayload.redirect_uri)
