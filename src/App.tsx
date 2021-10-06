@@ -9,7 +9,12 @@
  */
 import {OP_DID, OP_KID, OP_PRIVATE_KEY} from "@env"
 import GimlyIDQRCodeScanner, {QRContent} from "@sphereon/gimlyid-qr-code-scanner"
-import OPAuthenticator, {ParsedAuthenticationRequestURI, VerifiedAuthenticationRequestWithJWT} from "@spostma/rn-did-auth-op-authenticator";
+import {VerifiableCredential} from "@sphereon/pe-js/lib/verifiablePresentation/index"
+import OPAuthenticator, {
+  AuthRequestDetails,
+  ParsedAuthenticationRequestURI,
+  VerifiedAuthenticationRequestWithJWT
+} from "@spostma/rn-did-auth-op-authenticator";
 import {QRCodeValues} from "@spostma/rn-did-auth-op-authenticator/dist/types/types";
 import React, {Component} from "react"
 import {StyleSheet, Text, Vibration, View,} from "react-native"
@@ -29,9 +34,11 @@ class App extends Component<AppState> {
   state: AppState = {
     message: "Scan the QR code"
   }
+  private static vc = require("./assets/sample-vc.json")
   private opAuthenticator: OPAuthenticator
   private authRequestURI?: ParsedAuthenticationRequestURI
   private verifiedAuthenticationRequest?: VerifiedAuthenticationRequestWithJWT
+  private authRequestDetails?: AuthRequestDetails;
 
 
   constructor(props: AppState, context: any) {
@@ -45,6 +52,8 @@ class App extends Component<AppState> {
 
   componentDidMount() {
     this.setState({showQRScanner: true})
+    const url = new URL("https://www.w3.org/2018/credentials/v1/");
+    console.log(url)
   }
 
   render() {
@@ -73,19 +82,22 @@ class App extends Component<AppState> {
     }
   }
 
+
   private async processBarcode(qrContent: QRContent) {
     this.setState({showQRScanner: false, message: "Barcode read, waiting for biometric approval."})
     Vibration.vibrate(500)
+
     try {
       const redirectUrl = qrContent.redirectUrl as string
       console.log("Getting request URL from", redirectUrl)
       this.authRequestURI = await this.opAuthenticator.getAuthenticationRequestFromRP(qrContent as QRCodeValues)
       console.log("Get redirect_uri", this.authRequestURI.requestPayload.redirect_uri)
       this.verifiedAuthenticationRequest = await this.opAuthenticator.verifyAuthenticationRequestURI(this.authRequestURI)
-      const rpDid = this.opAuthenticator.rpDidFromAuthenticationRequest(this.verifiedAuthenticationRequest)
+      this.authRequestDetails = await this.opAuthenticator.getAuthenticationRequestDetails(this.verifiedAuthenticationRequest as VerifiedAuthenticationRequestWithJWT,
+          [this.getVC()])
       this.setState({
         showBiometricPopup: true,
-        biometricPopupDescription: `Received authentication request from ${rpDid.id} ${rpDid.alsoKnownAs}`
+        biometricPopupDescription: `Received authentication request from ${this.authRequestDetails.id} ${this.authRequestDetails.alsoKnownAs}`
       })
     } catch (e) {
       console.error("verifyRequest failed", e)
@@ -103,7 +115,8 @@ class App extends Component<AppState> {
         message: `Biometric approval received, sending response.`
       })
 
-      await this.opAuthenticator.sendAuthResponse(this.verifiedAuthenticationRequest as VerifiedAuthenticationRequestWithJWT)
+      await this.opAuthenticator.sendAuthResponse(this.verifiedAuthenticationRequest as VerifiedAuthenticationRequestWithJWT,
+          this.authRequestDetails?.verifiablePresentation)
       this.setState({message: "Login successful"})
     } catch (e) {
       console.error("sendAuthResponse failed", e.message)
@@ -124,7 +137,12 @@ class App extends Component<AppState> {
     })
     this.timeout(5000).then(() => this.setState({showQRScanner: true}))
   }
+
+  private getVC(): VerifiableCredential {
+    return App.vc as VerifiableCredential;
+  }
 }
+
 
 const styles = StyleSheet.create({
   sectionContainer: {
