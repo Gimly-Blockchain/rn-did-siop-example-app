@@ -1,6 +1,6 @@
 {
-  "name": "rn-did-siop-auth-app",
-  "version": "0.0.1",
+  "name": "@gimly-blockchain/rn-did-siop-auth-app",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "nodeify": "rn-nodeify --hack --install \"fs,crypto,stream\"",
@@ -12,7 +12,7 @@
     "fix:lint": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
-    "@gimly-blockchain/rn-did-auth-siop-authenticator": "^0.1.0",
+    "@gimly-blockchain/rn-did-auth-siop-authenticator": "^0.1.2",
     "@gimly-blockchain/rn-gimlyid-qr-code-scanner": "^0.1.0",
     "@tradle/react-native-http": "^2.0.0",
     "assert": "^1.1.1",

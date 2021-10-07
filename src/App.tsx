@@ -62,8 +62,8 @@ class App extends Component<AppState> {
         const showBiometricPopup = this.state.showBiometricPopup as boolean
         if (showQRScanner) {
             return (
-                <GimlyIDQRCodeScanner style={{flex: 1, width: '100%'}} onRead={(qrContent: QRContent) => {
-                    this.processBarcode(qrContent)
+                <GimlyIDQRCodeScanner style={{flex: 1, width: '100%'}} onRead={async (qrContent: QRContent) => {
+                    await this.processBarcode(qrContent)
                 }
                 }/>
             )
@@ -96,9 +96,10 @@ class App extends Component<AppState> {
             this.verifiedAuthenticationRequest = await this.opAuthenticator.verifyAuthenticationRequestURI(this.authRequestURI)
             this.authRequestDetails = await this.opAuthenticator.getAuthenticationRequestDetails(this.verifiedAuthenticationRequest as VerifiedAuthenticationRequestWithJWT,
                 [this.getVC()])
+            const purpose = this.verifiedAuthenticationRequest.presentationDefinitions?.[0]?.definition.purpose;
             this.setState({
                 showBiometricPopup: true,
-                biometricPopupDescription: `Received authentication request from ${this.authRequestDetails.id} ${this.authRequestDetails.alsoKnownAs}`
+                biometricPopupDescription: `${purpose}\nSite id: ${this.authRequestDetails.id}`
             })
         } catch (e) {
             console.error("verifyRequest failed", e)
