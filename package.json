@@ -1,5 +1,5 @@
 {
-  "name": "@gimly-blockchain/rn-did-siop-auth-app",
+  "name": "@gimly-blockchain/rn-did-auth-siop-demo-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
