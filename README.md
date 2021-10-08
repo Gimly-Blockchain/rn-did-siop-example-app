@@ -9,6 +9,8 @@
 Please note that this is not meant as a product or production use case. It is making assumptions for demoing the components involved.
 
 
+Demo: https://youtu.be/cqoKuQWPj-s
+
 ### To build
 - yarn install
 - yarn nodeify
